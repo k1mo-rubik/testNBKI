@@ -2,7 +2,6 @@ package ru.vslukianenko.testnbki.controller;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.vslukianenko.testnbki.model.BankRecord;
 import ru.vslukianenko.testnbki.service.BankRecordService;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,33 +23,49 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BankRecordController {
 
-    private BankRecordService recordService;
+
+    private final BankRecordService bankRecordService;
 
     @PostMapping
-    public BankRecord createRecord(@RequestBody BankRecord record) {
-        return recordService.createRecord(record);
+    public BankRecord createBankRecord(@RequestBody BankRecord bankRecord) {
+        return bankRecordService.createBankRecord(bankRecord);
+    }
+
+    @PostMapping("/list")
+    public void batchCreateBankRecords(@RequestBody List<BankRecord> bankRecords) {
+        bankRecordService.batchCreateBankRecords(bankRecords);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BankRecord> getRecordById(@PathVariable UUID id) {
-        Optional<BankRecord> record = recordService.getRecordById(id);
-        return record.map(ResponseEntity::ok)
+    public ResponseEntity<BankRecord> getBankRecordById(@PathVariable UUID id) {
+        Optional<BankRecord> bankRecord = bankRecordService.getBankRecordById(id);
+        return bankRecord.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BankRecord> updateRecord(@PathVariable UUID id, @RequestBody BankRecord recordDetails) {
-        Optional<BankRecord> updatedRecord = recordService.updateRecord(id, recordDetails);
-        return updatedRecord.map(ResponseEntity::ok)
+    public ResponseEntity<BankRecord> updateBankRecord(@PathVariable UUID id, @RequestBody BankRecord bankRecordDetails) {
+        Optional<BankRecord> updatedBankRecord = bankRecordService.updateBankRecord(id, bankRecordDetails);
+        return updatedBankRecord.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/list")
+    public void batchUpdateBankRecords(@RequestBody List<BankRecord> bankRecords) {
+        bankRecordService.batchUpdateBankRecords(bankRecords);
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRecord(@PathVariable UUID id) {
-        if (recordService.deleteRecord(id)) {
+    public ResponseEntity<Void> deleteBankRecord(@PathVariable UUID id) {
+        if (bankRecordService.deleteBankRecord(id)) {
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @DeleteMapping("/list")
+    public void batchDeleteBankRecords(@RequestBody List<UUID> ids) {
+        bankRecordService.batchDeleteBankRecords(ids);
     }
 }

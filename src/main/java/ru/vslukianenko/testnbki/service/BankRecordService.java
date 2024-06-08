@@ -1,11 +1,14 @@
 package ru.vslukianenko.testnbki.service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.vslukianenko.testnbki.model.BankRecord;
 import ru.vslukianenko.testnbki.repo.BankRecordRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,29 +17,80 @@ import java.util.UUID;
 public class BankRecordService {
 
 
-    private BankRecordRepository recordRepository;
+    private final BankRecordRepository bankRecordRepository;
 
-    public BankRecord createRecord(BankRecord record) {
-        return recordRepository.save(record);
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public BankRecord createBankRecord(BankRecord bankRecord) {
+        return bankRecordRepository.save(bankRecord);
     }
 
-    public Optional<BankRecord> getRecordById(UUID id) {
-        return recordRepository.findById(id);
+    public Optional<BankRecord> getBankRecordById(UUID id) {
+        return bankRecordRepository.findById(id);
     }
 
-    public Optional<BankRecord> updateRecord(UUID id, BankRecord recordDetails) {
-        return recordRepository.findById(id).map(record -> {
-            record.setData(recordDetails.getData());
-            return recordRepository.save(record);
+    public Optional<BankRecord> updateBankRecord(UUID id, BankRecord bankRecordDetails) {
+        return bankRecordRepository.findById(id).map(bankRecord -> {
+            bankRecord.setData(bankRecordDetails.getData());
+            return bankRecordRepository.save(bankRecord);
         });
     }
 
-    public boolean deleteRecord(UUID id) {
-        if (recordRepository.existsById(id)) {
-            recordRepository.deleteById(id);
+    public boolean deleteBankRecord(UUID id) {
+        if (bankRecordRepository.existsById(id)) {
+            bankRecordRepository.deleteById(id);
             return true;
         } else {
             return false;
         }
     }
+
+    @Transactional
+    public void batchCreateBankRecords(List<BankRecord> bankRecords) {
+        int batchSize = 1000;
+        for (int i = 0; i < bankRecords.size(); i++) {
+            entityManager.persist(bankRecords.get(i));
+            if (i > 0 && i % batchSize == 0) {
+                entityManager.flush();
+                entityManager.clear();
+            }
+        }
+        entityManager.flush();
+        entityManager.clear();
+    }
+
+
+    @Transactional
+    public void batchUpdateBankRecords(List<BankRecord> bankRecords) {
+        int batchSize = 1000;
+        for (int i = 0; i < bankRecords.size(); i++) {
+            entityManager.merge(bankRecords.get(i));
+            if (i > 0 && i % batchSize == 0) {
+                entityManager.flush();
+                entityManager.clear();
+            }
+        }
+        entityManager.flush();
+        entityManager.clear();
+    }
+
+    @Transactional
+    public void batchDeleteBankRecords(List<UUID> ids) {
+        int batchSize = 1000;
+        for (int i = 0; i < ids.size(); i++) {
+            BankRecord bankRecord = entityManager.find(BankRecord.class, ids.get(i));
+            if (bankRecord != null) {
+                entityManager.remove(bankRecord);
+            }
+            if (i > 0 && i % batchSize == 0) {
+                entityManager.flush();
+                entityManager.clear();
+            }
+        }
+        entityManager.flush();
+        entityManager.clear();
+    }
+
+
 }
