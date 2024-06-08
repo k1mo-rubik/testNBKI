@@ -9,7 +9,7 @@ import jakarta.persistence.Id;
 import java.util.UUID;
 
 @Entity
-public class Record {
+public class BankRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
