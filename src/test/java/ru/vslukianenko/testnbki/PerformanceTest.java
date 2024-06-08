@@ -93,7 +93,7 @@ public class PerformanceTest {
 
         DescriptiveStatistics stats = new DescriptiveStatistics();
         for (Future<Long> result : results) {
-            stats.addValue(result.get() / 1_000_000.0); // Convert nanoseconds to milliseconds
+            stats.addValue(result.get() / 1_000_000.0);
         }
 
         System.out.println("Total time: " + stats.getSum() + " ms");
