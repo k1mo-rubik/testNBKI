@@ -21,7 +21,18 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
+/**
+ * Тесты производительности для операций с записями банка.
+ *
+ * <p>Этот класс тестирует производительность создания и чтения записей в базе данных.</p>
+ *
+ * <p>Константы:</p>
+ * <ul>
+ *   <li>{@code NUM_RECORDS} - количество записей для тестов создания и чтения.</li>
+ *   <li>{@code NUM_CONNECTIONS} - количество параллельных потоков для тестов чтения.</li>
+ *   <li>{@code NUM_QUERIES} - количество запросов для тестов чтения.</li>
+ * </ul>
+ */
 @SpringBootTest
 public class PerformanceTest {
 
@@ -34,15 +45,21 @@ public class PerformanceTest {
 
     @Autowired
     private BankRecordService recordService;
-
+    /**
+     * Устанавливает начальные условия перед каждым тестом.
+     *
+     * <p>Удаляет все записи из репозитория перед запуском каждого теста.</p>
+     */
     @BeforeEach
     public void setUp() {
         recordRepository.deleteAll();
     }
 
-
-
-
+    /**
+     * Тестирует создание записей в базе данных.
+     *
+     * <p>Создает {@code NUM_RECORDS} записей и проверяет, что все они были успешно сохранены.</p>
+     */
     @Test
     public void testCreateRecords() {
         List<BankRecord> records = new ArrayList<>();
@@ -59,7 +76,16 @@ public class PerformanceTest {
 
 
 
-
+    /**
+     * Тестирует чтение записей из базы данных.
+     *
+     * <p>Создает и обновляет {@code NUM_RECORDS} записей, затем выполняет {@code NUM_QUERIES} параллельных запросов для чтения случайных записей.</p>
+     *
+     * <p>Измеряет и выводит статистику времени выполнения запросов.</p>
+     *
+     * @throws InterruptedException если выполнение потока было прервано
+     * @throws ExecutionException если выполнение потока завершилось с ошибкой
+     */
     @Test
     public void testReadRecords() throws InterruptedException, ExecutionException {
 
